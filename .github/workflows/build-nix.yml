@@ -5,6 +5,9 @@ on: [push, pull_request]
 
 jobs:
   build_changes:
+    strategy:
+      matrix:
+        arch: [ARM64, X64]
     name: build_changes
     permissions: write-all
     runs-on: ubuntu-latest
