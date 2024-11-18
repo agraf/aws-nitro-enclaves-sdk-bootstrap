@@ -1,0 +1,43 @@
+name: release
+run-name: Cut new release
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: install nix
+        uses: cachix/install-nix-action@v20
+      - name: build artifacts
+        run: nix-build --pure -A all
+      - name: Get Changes between Tags
+        id: changes
+        uses: simbo/changes-between-tags-action@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Put changes into temp file
+        id: changes-file
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "${{ steps.changes.outputs.changes }}" > ${{ github.workspace }}-CHANGELOG.txt
+      - name: release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/v')
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          generate_release_notes: true
+          make_latest: true
+          files: ./result/*
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
