@@ -4,6 +4,7 @@ let
     sha256 = "sha256:1lr1h35prqkd1mkmzriwlpvxcb34kmhc9dnr48gkm8hh089hifmx";
   }) { };
 
+  version = "1.0.1";
   arch = nixpkgs.stdenv.hostPlatform.uname.processor;
 in
 rec {
